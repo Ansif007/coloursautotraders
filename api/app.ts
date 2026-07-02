@@ -4,10 +4,10 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 
-import authRoutes from "./routes/auth";
-import partsRoutes from "./routes/parts";
-import inquiriesRoutes from "./routes/inquiries";
-import vehiclesRoutes from "./routes/vehicles";
+import authRoutes from "./routes/auth.js";
+import partsRoutes from "./routes/parts.js";
+import inquiriesRoutes from "./routes/inquiries.js";
+import vehiclesRoutes from "./routes/vehicles.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 

@@ -1,4 +1,4 @@
-import { getDb, migrate } from "./db";
+import { getDb, migrate } from "./db.js";
 import { v4 as uuid } from "uuid";
 
 interface SeedPart {
