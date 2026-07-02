@@ -1,11 +1,12 @@
 import { create } from "zustand";
-import type { Part } from "@/types";
+import type { Part, Vehicle } from "@/types";
 import { api } from "@/lib/api";
 
 interface AdminStore {
   isAuthenticated: boolean;
   user: { role: string } | null;
   parts: Part[];
+  vehicles: Vehicle[];
   loading: boolean;
   error: string | null;
   login: (pin: string) => Promise<boolean>;
@@ -15,12 +16,17 @@ interface AdminStore {
   addPart: (part: Omit<Part, "id" | "slug" | "createdAt" | "updatedAt" | "viewCount">) => Promise<void>;
   updatePart: (part: Part) => Promise<void>;
   deletePart: (id: string) => Promise<void>;
+  fetchVehicles: () => Promise<void>;
+  addVehicle: (vehicle: Omit<Vehicle, "id" | "slug" | "createdAt" | "updatedAt">) => Promise<void>;
+  updateVehicle: (vehicle: Vehicle) => Promise<void>;
+  deleteVehicle: (id: string) => Promise<void>;
 }
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
   isAuthenticated: false,
   user: null,
   parts: [],
+  vehicles: [],
   loading: false,
   error: null,
 
@@ -86,6 +92,46 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     try {
       await api.parts.delete(id);
       await get().fetchParts();
+    } catch (err: any) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
+  fetchVehicles: async () => {
+    set({ loading: true, error: null });
+    try {
+      const vehicles = await api.vehicles.list();
+      set({ vehicles, loading: false });
+    } catch (err: any) {
+      set({ error: err.message, loading: false });
+    }
+  },
+
+  addVehicle: async (vehicle) => {
+    try {
+      await api.vehicles.create(vehicle);
+      await get().fetchVehicles();
+    } catch (err: any) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
+  updateVehicle: async (vehicle) => {
+    try {
+      await api.vehicles.update(vehicle.id, vehicle);
+      await get().fetchVehicles();
+    } catch (err: any) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
+  deleteVehicle: async (id: string) => {
+    try {
+      await api.vehicles.delete(id);
+      await get().fetchVehicles();
     } catch (err: any) {
       set({ error: err.message });
       throw err;

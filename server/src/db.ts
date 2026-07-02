@@ -57,4 +57,24 @@ export async function migrate() {
   await db.query("CREATE INDEX IF NOT EXISTS idx_parts_category ON parts(category)").catch(() => {});
   await db.query("CREATE INDEX IF NOT EXISTS idx_parts_brand ON parts(brand)").catch(() => {});
   await db.query("CREATE INDEX IF NOT EXISTS idx_parts_featured ON parts(featured)").catch(() => {});
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS vehicles (
+      id TEXT PRIMARY KEY,
+      slug TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      make TEXT NOT NULL,
+      model TEXT NOT NULL,
+      image TEXT,
+      "createdAt" TEXT NOT NULL,
+      "updatedAt" TEXT NOT NULL
+    )
+  `);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS vehicle_parts (
+      vehicle_id TEXT NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+      part_id TEXT NOT NULL REFERENCES parts(id) ON DELETE CASCADE,
+      PRIMARY KEY (vehicle_id, part_id)
+    )
+  `);
 }

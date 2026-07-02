@@ -73,6 +73,18 @@ export interface InquiryForm {
   preferredContact: "whatsapp" | "email" | "call";
 }
 
+export interface Vehicle {
+  id: string;
+  slug: string;
+  name: string;
+  make: string;
+  model: string;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
+  partCount?: number;
+}
+
 export interface AdminState {
   parts: Part[];
   isAuthenticated: boolean;

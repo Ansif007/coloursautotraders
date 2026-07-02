@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth";
 import partsRoutes from "./routes/parts";
 import inquiriesRoutes from "./routes/inquiries";
+import vehiclesRoutes from "./routes/vehicles";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -49,6 +50,7 @@ app.use("/api/inquiries", inquiryLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/parts", partsRoutes);
 app.use("/api/inquiries", inquiriesRoutes);
+app.use("/api/vehicles", vehiclesRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString() });

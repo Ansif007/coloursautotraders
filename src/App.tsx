@@ -11,6 +11,8 @@ import { CatalogPage } from "@/pages/Catalog";
 import { AboutPage } from "@/pages/About";
 import { ContactPage } from "@/pages/Contact";
 import { ProductDetailPage } from "@/pages/ProductDetail";
+import Vehicles from "@/pages/Vehicles";
+import VehicleDetail from "@/pages/VehicleDetail";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
 const AdminLogin = lazy(() =>
@@ -25,6 +27,8 @@ const AdminInventory = lazy(() =>
 const AdminAddPart = lazy(() =>
   import("@/pages/AdminAddPart").then((m) => ({ default: m.AdminAddPart }))
 );
+const AdminVehicles = lazy(() => import("@/pages/AdminVehicles"));
+const AdminAddVehicle = lazy(() => import("@/pages/AdminAddVehicle"));
 
 function PageTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -156,6 +160,26 @@ function App() {
           </Layout>
         }
       />
+      <Route
+        path="/vehicles"
+        element={
+          <Layout>
+            <PageTransition>
+              <Vehicles />
+            </PageTransition>
+          </Layout>
+        }
+      />
+      <Route
+        path="/vehicles/:slug"
+        element={
+          <Layout>
+            <PageTransition>
+              <VehicleDetail />
+            </PageTransition>
+          </Layout>
+        }
+      />
 
       {/* Admin Routes (code-split) */}
       <Route
@@ -201,6 +225,30 @@ function App() {
         element={
           <AdminLayout>
             <AdminAddPart />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/vehicles"
+        element={
+          <AdminLayout>
+            <AdminVehicles />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/add-vehicle"
+        element={
+          <AdminLayout>
+            <AdminAddVehicle />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/edit-vehicle/:slug"
+        element={
+          <AdminLayout>
+            <AdminAddVehicle />
           </AdminLayout>
         }
       />

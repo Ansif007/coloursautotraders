@@ -680,4 +680,65 @@ export async function seed() {
   }
 
   console.log(`Seeded ${parts.length} parts into the database.`);
+
+  // Seed vehicles from parts compatibility data
+  await seedVehicles();
+}
+
+async function seedVehicles() {
+  const db = getDb();
+  const vResult = await db.query("SELECT COUNT(*)::int as c FROM vehicles");
+  if (vResult.rows[0].c > 0) {
+    console.log("Vehicles already seeded — skipping.");
+    return;
+  }
+
+  const compResult = await db.query("SELECT id, compatibility FROM parts");
+  const seen = new Set<string>();
+  const vehicleRows: { id: string; slug: string; name: string; make: string; model: string; iso: string }[] = [];
+
+  for (const row of compResult.rows) {
+    const comps = JSON.parse(row.compatibility || "[]") as { make: string; model: string }[];
+    for (const c of comps) {
+      const key = `${c.make}|${c.model}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const now = new Date().toISOString();
+      vehicleRows.push({
+        id: uuid(),
+        slug: slugify(`${c.make} ${c.model}`),
+        name: `${c.make} ${c.model}`,
+        make: c.make,
+        model: c.model,
+        iso: now,
+      });
+    }
+  }
+
+  for (const v of vehicleRows) {
+    await db.query(
+      `INSERT INTO vehicles (id, slug, name, make, model, "createdAt", "updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [v.id, v.slug, v.name, v.make, v.model, v.iso, v.iso]
+    );
+  }
+  console.log(`Seeded ${vehicleRows.length} vehicles from part compatibility data.`);
+
+  // Link parts to vehicles
+  const allParts = await db.query("SELECT id, compatibility FROM parts");
+  let linkCount = 0;
+  for (const row of allParts.rows) {
+    const comps = JSON.parse(row.compatibility || "[]") as { make: string; model: string }[];
+    for (const c of comps) {
+      const vSlug = slugify(`${c.make} ${c.model}`);
+      const v = await db.query("SELECT id FROM vehicles WHERE slug = $1", [vSlug]);
+      if (v.rows.length > 0) {
+        await db.query(
+          "INSERT INTO vehicle_parts (vehicle_id, part_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+          [v.rows[0].id, row.id]
+        );
+        linkCount++;
+      }
+    }
+  }
+  console.log(`Linked ${linkCount} part-vehicle relationships.`);
 }

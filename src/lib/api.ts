@@ -50,6 +50,31 @@ export const api = {
       request<{ ok: boolean }>(`/parts/${id}`, { method: "DELETE" }),
   },
 
+  vehicles: {
+    list: () => request<any[]>("/vehicles"),
+    get: (slug: string) => request<any>(`/vehicles/${slug}`),
+    getParts: (slug: string) => request<any[]>(`/vehicles/${slug}/parts`),
+    create: (vehicle: any) =>
+      request<any>("/vehicles", {
+        method: "POST",
+        body: JSON.stringify(vehicle),
+      }),
+    update: (id: string, vehicle: any) =>
+      request<any>(`/vehicles/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(vehicle),
+      }),
+    delete: (id: string) =>
+      request<{ ok: boolean }>(`/vehicles/${id}`, { method: "DELETE" }),
+    addPart: (vehicleId: string, partId: string) =>
+      request<{ ok: boolean }>(`/vehicles/${vehicleId}/parts`, {
+        method: "POST",
+        body: JSON.stringify({ partId }),
+      }),
+    removePart: (vehicleId: string, partId: string) =>
+      request<{ ok: boolean }>(`/vehicles/${vehicleId}/parts/${partId}`, { method: "DELETE" }),
+  },
+
   inquiries: {
     submit: (data: {
       contactName: string;

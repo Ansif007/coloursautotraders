@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Package,
   PlusCircle,
+  Truck,
   LogOut,
   Menu,
   X,
@@ -16,6 +17,7 @@ const navItems = [
   { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/admin/inventory", label: "Inventory", icon: Package },
   { path: "/admin/add-part", label: "Add New Part", icon: PlusCircle },
+  { path: "/admin/vehicles", label: "Vehicles", icon: Truck },
 ];
 
 export function AdminSidebar() {
