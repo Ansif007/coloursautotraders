@@ -13,15 +13,6 @@ const navLinks = [
   { label: "Contact", path: "/contact" },
 ];
 
-const quickCategories = [
-  { label: "Engine", query: "engine" },
-  { label: "Brakes", query: "brakes" },
-  { label: "Electrical", query: "electrical" },
-  { label: "Suspension", query: "suspension" },
-  { label: "Cooling", query: "cooling" },
-  { label: "Filters", query: "filters" },
-];
-
 interface HeaderProps {
   onInquiryToggle?: () => void;
 }
@@ -132,17 +123,6 @@ export function Header({ onInquiryToggle }: HeaderProps) {
                 </Link>
               ))}
             </nav>
-            <div className="ml-auto flex items-center gap-4">
-              {quickCategories.map((cat) => (
-                <Link
-                  key={cat.query}
-                  to={`/catalog?category=${cat.query}`}
-                  className="text-[10px] font-body text-text-muted hover:text-text-primary uppercase tracking-[0.1em] transition-colors"
-                >
-                  {cat.label}
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
       </header>

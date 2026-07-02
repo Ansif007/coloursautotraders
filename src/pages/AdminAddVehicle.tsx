@@ -30,12 +30,12 @@ export default function AdminAddVehicle() {
   };
 
   if (loading) {
-    return <p className="text-slate-400">Loading...</p>;
+    return <p className="text-text-muted">Loading...</p>;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">
         {existing ? "Edit Vehicle" : "Add Vehicle"}
       </h1>
       <div className="max-w-lg">

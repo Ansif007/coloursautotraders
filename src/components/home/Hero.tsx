@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { HeroSearchBar } from "./HeroSearchBar";
 
@@ -28,8 +27,6 @@ const wordReveal = {
 };
 
 export function Hero() {
-  const navigate = useNavigate();
-
   return (
     <section className="bg-bg-base border-b border-border-subtle">
       <div className="max-w-7xl mx-auto px-4 py-10">
@@ -68,23 +65,7 @@ export function Hero() {
             <HeroSearchBar />
           </div>
 
-          {/* Quick category links */}
-          <div className="mt-5 flex items-center gap-3 flex-wrap">
-            {[
-              { label: "Engine Parts", query: "engine" },
-              { label: "Brakes", query: "brakes" },
-              { label: "Electrical", query: "electrical" },
-              { label: "Suspension", query: "suspension" },
-            ].map((pill) => (
-              <button
-                key={pill.label}
-                onClick={() => navigate(`/catalog?category=${pill.query}`)}
-                className="px-3 py-1.5 border border-border-subtle text-[10px] font-body font-semibold text-text-secondary hover:text-text-primary hover:border-accent-amber/40 transition-colors uppercase tracking-[0.1em]"
-              >
-                {pill.label}
-              </button>
-            ))}
-          </div>
+
         </div>
       </div>
     </section>

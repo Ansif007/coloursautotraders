@@ -25,10 +25,10 @@ export default function Vehicles() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-slate-900 border-b border-slate-800">
+      <section className="bg-bg-base border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-4 py-16">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Browse Vehicles</h1>
-          <p className="text-slate-400 text-lg max-w-2xl">
+          <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">Browse Vehicles</h1>
+          <p className="text-text-muted text-lg max-w-2xl">
             Select a vehicle to view its compatible spare parts.
           </p>
           <div className="mt-6 max-w-md">
@@ -37,7 +37,7 @@ export default function Vehicles() {
               placeholder="Search vehicles by name, make or model..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-800 text-white border border-slate-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500"
+              className="w-full bg-bg-surface text-text-primary border border-border-subtle rounded-lg px-4 py-2.5 focus:outline-none focus:border-accent-amber"
             />
           </div>
         </div>
@@ -46,9 +46,9 @@ export default function Vehicles() {
       {/* Grid */}
       <section className="max-w-7xl mx-auto px-4 py-12">
         {loading ? (
-          <p className="text-slate-400">Loading vehicles...</p>
+          <p className="text-text-muted">Loading vehicles...</p>
         ) : filtered.length === 0 ? (
-          <p className="text-slate-400">
+          <p className="text-text-muted">
             {search ? "No vehicles match your search." : "No vehicles found."}
           </p>
         ) : (

@@ -1,0 +1,742 @@
+import { getDb, migrate } from "./db";
+import { v4 as uuid } from "uuid";
+
+interface SeedPart {
+  name: string;
+  partNumber: string;
+  oemNumbers: string[];
+  brand: string;
+  category: string;
+  subcategory: string;
+  shortDescription: string;
+  description: string;
+  specifications: { label: string; value: string; unit: string }[];
+  compatibility: { make: string; model: string; yearFrom: number; yearTo: number; engineCode?: string }[];
+  stockStatus: string;
+  stockNote: string;
+  tags: string[];
+  featured: boolean;
+  viewCount: number;
+}
+
+const parts: SeedPart[] = [
+  {
+    name: "Crankshaft Bearing Set",
+    partNumber: "CB-8872-STD",
+    oemNumbers: ["1A111-31701", "5-8612-3170-0"],
+    brand: "Nippon Bearings",
+    category: "engine",
+    subcategory: "Bearings",
+    shortDescription: "Standard-size main and rod bearing set for 4-cylinder diesel engines.",
+    description: "Precision-ground bearing set compatible with a wide range of 4-cylinder diesel engines.\n\n- Trimetal construction for high load capacity\n- Grooved upper half for oil retention\n- Includes main and rod bearings\n- OEM-grade clearance tolerance (±2µm)",
+    specifications: [
+      { label: "Material", value: "Trimetal (steel + copper-lead + overlay)", unit: "" },
+      { label: "Main Bearing ID", value: "62.000", unit: "mm" },
+      { label: "Rod Bearing ID", value: "48.005", unit: "mm" },
+      { label: "Wall Thickness", value: "2.015", unit: "mm" },
+      { label: "Width", value: "22.0", unit: "mm" },
+      { label: "Operating Temp Range", value: "-40 to 180", unit: "°C" },
+      { label: "Hardness", value: "85", unit: "HRB" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "2L", yearFrom: 1985, yearTo: 1998 },
+      { make: "Toyota", model: "3L", yearFrom: 1988, yearTo: 2005 },
+      { make: "Mitsubishi", model: "4D56", yearFrom: 1986, yearTo: 2007, engineCode: "4D56" },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["crankshaft", "bearing", "diesel", "engine-bottom"],
+    featured: true,
+    viewCount: 1240,
+  },
+  {
+    name: "Piston Ring Set",
+    partNumber: "PRS-4D56-050",
+    oemNumbers: ["MD091228", "ME201640"],
+    brand: "FrictiON Tech",
+    category: "engine",
+    subcategory: "Pistons & Rings",
+    shortDescription: "Oversize +0.50mm piston ring set for Mitsubishi 4D56 turbo diesel.",
+    description: "High-chrome piston ring set engineered for turbocharged diesel applications.\n\n- Top ring: Barrel-faced moly-coated\n- Second ring: Taper-faced cast iron\n- Oil ring: Three-piece stainless steel\n- Gap tolerance: ±0.05mm",
+    specifications: [
+      { label: "Material", value: "Ductile iron + moly coating", unit: "" },
+      { label: "Bore Diameter", value: "91.50", unit: "mm" },
+      { label: "Ring Width", value: "2.0", unit: "mm" },
+      { label: "Ring Thickness", value: "3.8", unit: "mm" },
+      { label: "Oversize", value: "+0.50", unit: "mm" },
+      { label: "End Gap (Top)", value: "0.30-0.45", unit: "mm" },
+      { label: "End Gap (Oil)", value: "0.25-0.55", unit: "mm" },
+    ],
+    compatibility: [
+      { make: "Mitsubishi", model: "Pajero", yearFrom: 1991, yearTo: 1999, engineCode: "4D56" },
+      { make: "Mitsubishi", model: "L300", yearFrom: 1986, yearTo: 2005, engineCode: "4D56" },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["piston-ring", "4d56", "diesel", "engine-bottom"],
+    featured: false,
+    viewCount: 876,
+  },
+  {
+    name: "Complete Gasket Kit",
+    partNumber: "GK-3L-COMP",
+    oemNumbers: ["04111-54030", "04112-54030"],
+    brand: "Nippon Bearings",
+    category: "engine",
+    subcategory: "Gaskets",
+    shortDescription: "Full top-end gasket kit for Toyota 3L diesel engine. 32-piece set.",
+    description: "Complete top-end overhaul gasket set for the Toyota 3L diesel engine.\n\n- Cylinder head gasket (multi-layer steel)\n- Valve cover gasket\n- Intake/exhaust manifold gaskets\n- Water outlet gasket\n- All necessary O-rings and seals",
+    specifications: [
+      { label: "Kit Contents", value: "32", unit: "pieces" },
+      { label: "Head Gasket Type", value: "Multi-layer steel (MLS)", unit: "" },
+      { label: "Head Gasket Thickness", value: "1.20", unit: "mm" },
+      { label: "Material", value: "Aramid fiber + NBR coated steel", unit: "" },
+      { label: "Temperature Rating", value: "-40 to 300", unit: "°C" },
+      { label: "Compressed Thickness", value: "1.15", unit: "mm" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 1988, yearTo: 2005, engineCode: "3L" },
+      { make: "Toyota", model: "Land Cruiser Prado", yearFrom: 1990, yearTo: 2002, engineCode: "3L" },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["gasket", "overhaul", "diesel", "engine-top"],
+    featured: true,
+    viewCount: 2154,
+  },
+  {
+    name: "Oil Pump Assembly",
+    partNumber: "OP-2L-TROCH",
+    oemNumbers: ["15100-54010", "15100-54020"],
+    brand: "FrictiON Tech",
+    category: "engine",
+    subcategory: "Lubrication",
+    shortDescription: "Trochoid-style oil pump for Toyota 2L/3L diesel. High-volume rotor set.",
+    description: "Direct replacement trochoid-type oil pump tested for flow rate and pressure.\n\n- Hardened steel inner and outer rotors\n- Relief valve pre-set to 70 psi\n- Includes drive pin and gasket\n- Flow rate: 42 L/min @ 3000 RPM",
+    specifications: [
+      { label: "Type", value: "Trochoid (gerotor)", unit: "" },
+      { label: "Rotor Diameter", value: "72", unit: "mm" },
+      { label: "Rotor Height", value: "24", unit: "mm" },
+      { label: "Relief Valve Pressure", value: "70", unit: "psi" },
+      { label: "Flow Rate", value: "42 @ 3000 RPM", unit: "L/min" },
+      { label: "Housing Material", value: "Die-cast aluminum", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "2L", yearFrom: 1985, yearTo: 1998 },
+      { make: "Toyota", model: "3L", yearFrom: 1988, yearTo: 2005 },
+    ],
+    stockStatus: "low_stock",
+    stockNote: "Expected restock: 3 weeks",
+    tags: ["oil-pump", "lubrication", "diesel", "engine-bottom"],
+    featured: false,
+    viewCount: 543,
+  },
+  {
+    name: "Timing Chain Kit",
+    partNumber: "TCK-1KZ-STD",
+    oemNumbers: ["13506-67010", "13507-67010"],
+    brand: "FrictiON Tech",
+    category: "engine",
+    subcategory: "Timing",
+    shortDescription: "Complete timing chain set with guides and tensioner for Toyota 1KZ-TE.",
+    description: "Full timing chain replacement kit for the 1KZ-TE turbo diesel engine.\n\n- Heat-treated alloy steel chain\n- Self-adjusting hydraulic tensioner\n- Hardened sprockets with induction-treated teeth\n- Pre-assembled guide rails with rubber facing",
+    specifications: [
+      { label: "Chain Pitch", value: "9.525", unit: "mm" },
+      { label: "Chain Width", value: "24", unit: "mm" },
+      { label: "Number of Links", value: "118", unit: "" },
+      { label: "Tensioner Type", value: "Hydraulic self-adjusting", unit: "" },
+      { label: "Tensile Strength", value: "15000", unit: "N" },
+      { label: "Kit Contents", value: "8", unit: "pieces" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 1995, yearTo: 2004, engineCode: "1KZ-TE" },
+      { make: "Toyota", model: "Prado", yearFrom: 1996, yearTo: 2002, engineCode: "1KZ-TE" },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["timing-chain", "1kz-te", "diesel", "engine-top"],
+    featured: true,
+    viewCount: 1892,
+  },
+  {
+    name: "Brake Pad Set",
+    partNumber: "BP-4X4-CERA",
+    oemNumbers: ["04465-60160", "04465-35140"],
+    brand: "DrumPro",
+    category: "brakes",
+    subcategory: "Pads & Shoes",
+    shortDescription: "Ceramic brake pad set for 4x4 applications. Low dust, high bite.",
+    description: "Premium ceramic brake pad formulation designed for heavy 4x4 vehicles.\n\n- Low-metallic ceramic compound\n- Slotted and chamfered for noise reduction\n- Shimmed with rubber-core insulator\n- Wear indicator included\n- Operating temp: 0-600°C",
+    specifications: [
+      { label: "Material", value: "Ceramic with aramid fibers", unit: "" },
+      { label: "Friction Coefficient", value: "0.42-0.48", unit: "μ" },
+      { label: "Max Operating Temp", value: "600", unit: "°C" },
+      { label: "Pad Thickness", value: "18.5", unit: "mm" },
+      { label: "Pad Area", value: "52", unit: "cm²" },
+      { label: "Wear Indicator", value: "Integrated", unit: "" },
+      { label: "Shim Type", value: "Rubber-core insulator", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2015 },
+      { make: "Toyota", model: "Land Cruiser", yearFrom: 2007, yearTo: 2021 },
+      { make: "Nissan", model: "Navara", yearFrom: 2010, yearTo: 2020 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["brake-pads", "ceramic", "4x4", "braking"],
+    featured: true,
+    viewCount: 3421,
+  },
+  {
+    name: "Brake Rotor – Pair",
+    partNumber: "BR-320-SLOT",
+    oemNumbers: ["43512-60470", "43512-60290"],
+    brand: "DrumPro",
+    category: "brakes",
+    subcategory: "Rotors & Drums",
+    shortDescription: "Slotted 320mm brake rotor pair for heavy-duty towing applications.",
+    description: "High-carbon slotted rotors engineered for heat dissipation and reduced brake fade.\n\n- Directional slot pattern for gas venting\n- High-carbon G3000 metallurgy\n- Precision-balanced to < 5 g·cm\n- Rust-resistant coating on non-contact surfaces\n- Sold as a matched pair",
+    specifications: [
+      { label: "Diameter", value: "320", unit: "mm" },
+      { label: "Thickness", value: "28", unit: "mm" },
+      { label: "Min Thickness", value: "26", unit: "mm" },
+      { label: "Vane Type", value: "Curved internal", unit: "" },
+      { label: "Vane Count", value: "48", unit: "" },
+      { label: "Material", value: "G3000 high-carbon iron", unit: "" },
+      { label: "Balance Tolerance", value: "< 5", unit: "g·cm" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Land Cruiser 200", yearFrom: 2007, yearTo: 2021 },
+      { make: "Nissan", model: "Patrol", yearFrom: 2010, yearTo: 2024 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["brake-rotor", "slotted", "heavy-duty", "braking"],
+    featured: false,
+    viewCount: 1876,
+  },
+  {
+    name: "Brake Caliper – Front",
+    partNumber: "BC-F-TWN-4X4",
+    oemNumbers: ["47700-60300", "47750-60300"],
+    brand: "DrumPro",
+    category: "brakes",
+    subcategory: "Calipers & Cylinders",
+    shortDescription: "Twin-piston front brake caliper for Land Cruiser 200 series.",
+    description: "Fully remanufactured twin-piston front caliper pressure-tested with new seals.\n\n- Twin 45mm pistons for even pad wear\n- Corrosion-resistant E-coating\n- Stainless steel piston guides\n- Includes mounting bracket and hardware\n- Pressure tested to 2000 psi",
+    specifications: [
+      { label: "Piston Count", value: "2", unit: "" },
+      { label: "Piston Diameter", value: "45", unit: "mm" },
+      { label: "Caliper Type", value: "Floating", unit: "" },
+      { label: "Bore Finish", value: "Honed to 0.8μm RA", unit: "" },
+      { label: "Test Pressure", value: "2000", unit: "psi" },
+      { label: "Coating", value: "E-coat epoxy", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Land Cruiser 200", yearFrom: 2007, yearTo: 2021 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["caliper", "front", "twin-piston", "braking"],
+    featured: false,
+    viewCount: 932,
+  },
+  {
+    name: "Brake Master Cylinder",
+    partNumber: "BMC-1IN-BOOST",
+    oemNumbers: ["47201-60080", "47201-60100"],
+    brand: "DrumPro",
+    category: "brakes",
+    subcategory: "Hydraulics",
+    shortDescription: "1-inch bore master cylinder with integrated booster for heavy trucks.",
+    description: "Heavy-duty brake master cylinder with 1-inch bore and dual-diaphragm booster.\n\n- Cast iron body with epoxy finish\n- Dual-circuit split for safety\n- Integral reservoir with level sensor\n- Stroke: 35mm per circuit\n- Includes pushrod and seal kit",
+    specifications: [
+      { label: "Bore Diameter", value: "25.4 (1.0\")", unit: "mm" },
+      { label: "Stroke", value: "35", unit: "mm" },
+      { label: "Booster Type", value: "Dual diaphragm", unit: "" },
+      { label: "Booster Ratio", value: "6.5:1", unit: "" },
+      { label: "Material", value: "Cast iron", unit: "" },
+      { label: "Port Thread", value: "M10 x 1.0", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Dyna", yearFrom: 2000, yearTo: 2015 },
+      { make: "Isuzu", model: "N-Series", yearFrom: 2004, yearTo: 2018 },
+    ],
+    stockStatus: "low_stock",
+    stockNote: "Expected restock: 2 weeks",
+    tags: ["master-cylinder", "booster", "heavy-duty", "braking"],
+    featured: false,
+    viewCount: 654,
+  },
+  {
+    name: "Alternator 120A",
+    partNumber: "ALT-120-HD",
+    oemNumbers: ["27000-0L030", "104210-4420"],
+    brand: "Denso",
+    category: "electrical",
+    subcategory: "Charging",
+    shortDescription: "120-amp high-output alternator for commercial fleet vehicles.",
+    description: "High-output alternator delivering 120 amps at idle for fleet vehicles.\n\n- 120A output at 6000 RPM\n- Built-in voltage regulator\n- Overrunning alternator pulley (OAP)\n- Dust and splash resistant (IP54)\n- 12V negative-ground system",
+    specifications: [
+      { label: "Rated Output", value: "120 @ 6000 RPM", unit: "A" },
+      { label: "Idle Output", value: "75 @ 2000 RPM", unit: "A" },
+      { label: "Voltage", value: "12", unit: "V" },
+      { label: "Pulley Type", value: "Overrunning (OAP)", unit: "" },
+      { label: "Regulator", value: "Built-in, IC type", unit: "" },
+      { label: "Ingress Protection", value: "IP54", unit: "" },
+      { label: "Rotation", value: "Clockwise (viewed from pulley)", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hiace", yearFrom: 2004, yearTo: 2019 },
+      { make: "Toyota", model: "Dyna", yearFrom: 2005, yearTo: 2015 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["alternator", "charging", "electrical", "120a"],
+    featured: true,
+    viewCount: 2156,
+  },
+  {
+    name: "Starter Motor",
+    partNumber: "SM-4D56-RED",
+    oemNumbers: ["028000-8320", "18100-65030"],
+    brand: "Denso",
+    category: "electrical",
+    subcategory: "Starting",
+    shortDescription: "Reduction-gear starter motor for Mitsubishi 4D56. 1.4kW, 11-tooth pinion.",
+    description: "Compact reduction-gear starter motor with 1.4kW output.\n\n- 1.4kW rated power\n- Planetary gear reduction (4.5:1)\n- 11-tooth pinion, module 2.5\n- Sealed ball bearings\n- Weight: 3.8 kg",
+    specifications: [
+      { label: "Rated Power", value: "1.4", unit: "kW" },
+      { label: "Voltage", value: "12", unit: "V" },
+      { label: "Gear Reduction", value: "4.5:1 (planetary)", unit: "" },
+      { label: "Pinion Teeth", value: "11", unit: "" },
+      { label: "Pinion Module", value: "2.5", unit: "" },
+      { label: "Weight", value: "3.8", unit: "kg" },
+      { label: "Housing", value: "Die-cast aluminum", unit: "" },
+    ],
+    compatibility: [
+      { make: "Mitsubishi", model: "Delica", yearFrom: 1994, yearTo: 2007, engineCode: "4D56" },
+      { make: "Mitsubishi", model: "Pajero", yearFrom: 1991, yearTo: 1999, engineCode: "4D56" },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["starter", "reduction-gear", "electrical", "4d56"],
+    featured: false,
+    viewCount: 1432,
+  },
+  {
+    name: "Crankshaft Position Sensor",
+    partNumber: "CKP-HALL-3W",
+    oemNumbers: ["90919-05039", "5S7718"],
+    brand: "NGK",
+    category: "electrical",
+    subcategory: "Sensors",
+    shortDescription: "Hall-effect crankshaft position sensor, 3-wire, 12V square-wave output.",
+    description: "Hall-effect crank sensor providing precise crankshaft position timing for ECUs.\n\n- Hall-effect digital output (0-5V square wave)\n- 3-wire: 12V, GND, signal\n- Air gap: 0.5-1.5mm\n- Seal: Viton O-ring\n- Temp range: -40 to 150°C",
+    specifications: [
+      { label: "Type", value: "Hall-effect", unit: "" },
+      { label: "Output", value: "0-5V digital square wave", unit: "" },
+      { label: "Supply Voltage", value: "12", unit: "V" },
+      { label: "Air Gap", value: "0.5-1.5", unit: "mm" },
+      { label: "Temperature Range", value: "-40 to 150", unit: "°C" },
+      { label: "Seal Material", value: "Viton", unit: "" },
+      { label: "Terminals", value: "3 (12V, GND, SIG)", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 1998, yearTo: 2005, engineCode: "5L-E" },
+      { make: "Nissan", model: "Frontier", yearFrom: 2000, yearTo: 2010, engineCode: "KA24DE" },
+      { make: "Mitsubishi", model: "L200", yearFrom: 2001, yearTo: 2010, engineCode: "4D56" },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["crank-sensor", "hall-effect", "electrical", "sensors"],
+    featured: false,
+    viewCount: 2341,
+  },
+  {
+    name: "ECU – Remanufactured",
+    partNumber: "ECU-89661-RBLD",
+    oemNumbers: ["89661-0K480", "89661-0K490"],
+    brand: "Denso",
+    category: "electrical",
+    subcategory: "ECU & Modules",
+    shortDescription: "Remanufactured ECU for Toyota 1KD-FTV common-rail diesel. Flashed and tested.",
+    description: "Factory-remanufactured ECU for the 1KD-FTV common-rail diesel engine.\n\n- Flashed with latest OEM calibration\n- Bench-tested under load for 4 hours\n- Sealed against moisture ingress\n- Plug-and-play, no programming required",
+    specifications: [
+      { label: "Processor", value: "32-bit RISC", unit: "" },
+      { label: "Flash Memory", value: "2", unit: "MB" },
+      { label: "Operating Voltage", value: "9-16", unit: "V" },
+      { label: "Operating Temp", value: "-40 to 105", unit: "°C" },
+      { label: "Ingress Protection", value: "IP65 (with connector seated)", unit: "" },
+      { label: "Warranty", value: "12 months", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2010, engineCode: "1KD-FTV" },
+      { make: "Toyota", model: "Hiace", yearFrom: 2005, yearTo: 2012, engineCode: "1KD-FTV" },
+    ],
+    stockStatus: "out_of_stock",
+    stockNote: "Core deposit required. ETA: 4-6 weeks.",
+    tags: ["ecu", "reman", "diesel", "electronics"],
+    featured: false,
+    viewCount: 876,
+  },
+  {
+    name: "Front Strut Assembly",
+    partNumber: "FS-KYB-4X4",
+    oemNumbers: ["48510-69185", "48520-69185"],
+    brand: "KYB",
+    category: "suspension",
+    subcategory: "Struts & Shocks",
+    shortDescription: "Complete front strut assembly for Hilux/Navara. Gas-charged, pre-assembled.",
+    description: "Ready-to-install front strut assembly with coil spring pre-assembled.\n\n- Twin-tube gas-charged damper\n- Pre-assembled coil spring set to OE ride height\n- Integrated dust boot and bump stop\n- Corrosion-resistant zinc plating\n- No spring compressor needed",
+    specifications: [
+      { label: "Type", value: "Twin-tube gas-charged", unit: "" },
+      { label: "Stroke Length", value: "185", unit: "mm" },
+      { label: "Rod Diameter", value: "14", unit: "mm" },
+      { label: "Gas Pressure", value: "25", unit: "bar" },
+      { label: "Damping Force (Rebound)", value: "1850 @ 0.3 m/s", unit: "N" },
+      { label: "Damping Force (Compression)", value: "680 @ 0.3 m/s", unit: "N" },
+      { label: "Spring Rate", value: "42", unit: "N/mm" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2015 },
+      { make: "Nissan", model: "Navara", yearFrom: 2005, yearTo: 2015 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["strut", "front", "gas-charged", "suspension"],
+    featured: false,
+    viewCount: 1654,
+  },
+  {
+    name: "Control Arm – Upper",
+    partNumber: "CA-U-TRN-AL",
+    oemNumbers: ["48620-35020", "48640-35020"],
+    brand: "KYB",
+    category: "suspension",
+    subcategory: "Control Arms",
+    shortDescription: "Forged aluminum upper control arm with replaceable ball joint.",
+    description: "Lightweight forged aluminum upper control arm with serviceable ball joint.\n\n- 6061-T6 aluminum forging\n- Pre-installed ball joint (greasable)\n- Polyurethane bushings pre-pressed\n- E-coated finish\n- Sold individually",
+    specifications: [
+      { label: "Material", value: "6061-T6 aluminum forging", unit: "" },
+      { label: "Ball Joint Type", value: "Greasable, threaded insert", unit: "" },
+      { label: "Bushing Material", value: "Polyurethane, 95A durometer", unit: "" },
+      { label: "Weight", value: "2.1", unit: "kg" },
+      { label: "Surface Finish", value: "E-coat epoxy", unit: "" },
+      { label: "Position", value: "Upper, left or right", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Tundra", yearFrom: 2007, yearTo: 2021 },
+      { make: "Toyota", model: "Sequoia", yearFrom: 2008, yearTo: 2022 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["control-arm", "upper", "aluminum", "suspension"],
+    featured: false,
+    viewCount: 1123,
+  },
+  {
+    name: "Sway Bar Bushing Kit",
+    partNumber: "SB-BK-24MM",
+    oemNumbers: ["48821-35010", "48821-35020"],
+    brand: "KYB",
+    category: "suspension",
+    subcategory: "Bushings & Mounts",
+    shortDescription: "Polyurethane sway bar bushing kit for 24mm bars. Reduces body roll.",
+    description: "Premium polyurethane sway bar bushing kit for improved handling.\n\n- 24mm ID polyurethane bushings\n- Includes 2 frame-mount bushings + brackets\n- Pre-lubricated for squeak-free operation\n- UV-stabilized compound\n- 30% stiffer than OEM rubber",
+    specifications: [
+      { label: "Bushing ID", value: "24", unit: "mm" },
+      { label: "Bushing OD", value: "38", unit: "mm" },
+      { label: "Bushing Width", value: "28", unit: "mm" },
+      { label: "Material", value: "Polyurethane 95A", unit: "" },
+      { label: "Stiffness vs OEM", value: "+30%", unit: "" },
+      { label: "Kit Contents", value: "2 bushings + 2 brackets + grease", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2015 },
+      { make: "Nissan", model: "Navara", yearFrom: 2005, yearTo: 2015 },
+      { make: "Ford", model: "Ranger", yearFrom: 2006, yearTo: 2012 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["sway-bar", "bushing", "polyurethane", "suspension"],
+    featured: false,
+    viewCount: 789,
+  },
+  {
+    name: "Oil Filter – Heavy Duty",
+    partNumber: "OF-HD-51365",
+    oemNumbers: ["15601-87701", "51365"],
+    brand: "Fram",
+    category: "filters",
+    subcategory: "Oil Filters",
+    shortDescription: "Heavy-duty spin-on oil filter for diesel engines. 25-micron media.",
+    description: "High-capacity spin-on oil filter for extended drain intervals.\n\n- Synthetic blend filtration media\n- 25-micron nominal, 15-micron absolute\n- Silicone anti-drainback valve\n- High-burst steel housing (500 psi)\n- 1-inch 16-UNS thread",
+    specifications: [
+      { label: "Filtration Rating", value: "25 nominal / 15 absolute", unit: "micron" },
+      { label: "Thread", value: "1\"-16 UNS", unit: "" },
+      { label: "Burst Pressure", value: "500", unit: "psi" },
+      { label: "Anti-Drainback Valve", value: "Silicone", unit: "" },
+      { label: "Media Type", value: "Synthetic blend", unit: "" },
+      { label: "Height", value: "115", unit: "mm" },
+      { label: "OD", value: "93", unit: "mm" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Land Cruiser", yearFrom: 1998, yearTo: 2021 },
+      { make: "Nissan", model: "Patrol", yearFrom: 2000, yearTo: 2024 },
+      { make: "Mitsubishi", model: "Pajero", yearFrom: 2000, yearTo: 2019 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["oil-filter", "heavy-duty", "diesel", "filtration"],
+    featured: false,
+    viewCount: 4567,
+  },
+  {
+    name: "Air Filter – Panel",
+    partNumber: "AF-PNL-4X4",
+    oemNumbers: ["17801-38020", "E912L"],
+    brand: "MANN-FILTER",
+    category: "filters",
+    subcategory: "Air Filters",
+    shortDescription: "High-flow panel air filter for 4x4 diesel engines. Washable, reusable.",
+    description: "Oiled cotton gauze panel air filter for maximum airflow in dusty conditions.\n\n- 4-layer oiled cotton gauze\n- 99.5% filtration efficiency (ISO 5011)\n- Washable and reusable up to 50,000 km\n- Powder-coated steel wire mesh\n- Includes cleaning and re-oiling kit",
+    specifications: [
+      { label: "Media Type", value: "Oiled cotton gauze, 4-layer", unit: "" },
+      { label: "Efficiency", value: "99.5", unit: "%" },
+      { label: "Max Airflow", value: "420", unit: "CFM" },
+      { label: "Service Interval", value: "50,000 km (clean/re-oil)", unit: "" },
+      { label: "Dimensions (LxWxH)", value: "280 x 210 x 45", unit: "mm" },
+      { label: "Frame Material", value: "Powder-coated steel mesh", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2015 },
+      { make: "Nissan", model: "Navara", yearFrom: 2005, yearTo: 2015 },
+      { make: "Mitsubishi", model: "Triton", yearFrom: 2006, yearTo: 2015 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["air-filter", "panel", "washable", "filtration"],
+    featured: false,
+    viewCount: 3120,
+  },
+  {
+    name: "Fuel Filter – Water Separator",
+    partNumber: "FF-WS-DSL",
+    oemNumbers: ["23390-50010", "FS19732"],
+    brand: "Fram",
+    category: "filters",
+    subcategory: "Fuel Filters",
+    shortDescription: "Spin-on fuel filter with integrated water separator for common-rail diesels.",
+    description: "Fuel filter with integrated water separator and hand-priming pump.\n\n- 3-micron absolute filtration\n- Integrated water separator with drain\n- Hand-priming pump for easy bleeding\n- Sensor port for WIF (Water in Fuel) light\n- 1-inch 16-UNS thread",
+    specifications: [
+      { label: "Filtration Rating", value: "3 micron absolute", unit: "" },
+      { label: "Water Separation", value: ">95%", unit: "" },
+      { label: "Thread", value: "1\"-16 UNS", unit: "" },
+      { label: "Capacity", value: "600", unit: "mL" },
+      { label: "Priming Pump", value: "Integrated hand pump", unit: "" },
+      { label: "WIF Sensor", value: "Compatible (M12 x 1.5)", unit: "" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2015 },
+      { make: "Nissan", model: "Navara", yearFrom: 2006, yearTo: 2016 },
+      { make: "Mitsubishi", model: "L200", yearFrom: 2006, yearTo: 2018 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["fuel-filter", "water-separator", "diesel", "filtration"],
+    featured: false,
+    viewCount: 2890,
+  },
+  {
+    name: "Radiator Assembly",
+    partNumber: "RAD-AL-4ROW",
+    oemNumbers: ["16400-0L030", "16400-0L040"],
+    brand: "Denso",
+    category: "cooling",
+    subcategory: "Radiators",
+    shortDescription: "All-aluminum 4-row radiator for heavy-duty towing and hot climates.",
+    description: "All-aluminum 4-row core radiator for maximum heat rejection.\n\n- 100% brazed aluminum construction\n- 4-row 36mm core tubes\n- Plastic-free end tanks\n- 45mm overall core thickness\n- Pressure-tested to 35 psi",
+    specifications: [
+      { label: "Core Material", value: "Brazed aluminum", unit: "" },
+      { label: "Row Count", value: "4", unit: "" },
+      { label: "Core Dimensions (HxWxD)", value: "620 x 480 x 45", unit: "mm" },
+      { label: "Inlet/Outlet", value: "38 / 38", unit: "mm" },
+      { label: "Test Pressure", value: "35", unit: "psi" },
+      { label: "Weight", value: "6.2", unit: "kg" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Land Cruiser 100", yearFrom: 1998, yearTo: 2007 },
+      { make: "Toyota", model: "Land Cruiser 200", yearFrom: 2007, yearTo: 2021 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["radiator", "aluminum", "4-row", "cooling"],
+    featured: true,
+    viewCount: 1890,
+  },
+  {
+    name: "Water Pump Assembly",
+    partNumber: "WP-DSL-NSPN",
+    oemNumbers: ["16100-0L030", "16100-0L040"],
+    brand: "Aisin",
+    category: "cooling",
+    subcategory: "Water Pumps",
+    shortDescription: "Cast iron water pump with stainless steel impeller for diesel engines.",
+    description: "Heavy-duty water pump with cast iron body and CNC-machined stainless steel impeller.\n\n- Cast iron housing for corrosion resistance\n- Stainless steel CNC-machined impeller\n- Pre-lubricated sealed bearing\n- Includes paper gasket\n- Flow rate: 180 L/min @ 3000 RPM",
+    specifications: [
+      { label: "Housing Material", value: "Cast iron", unit: "" },
+      { label: "Impeller Material", value: "Stainless steel (CNC)", unit: "" },
+      { label: "Flow Rate", value: "180 @ 3000 RPM", unit: "L/min" },
+      { label: "Bearing Type", value: "Sealed, pre-lubricated", unit: "" },
+      { label: "Mounting Holes", value: "4 x M8, 90mm square", unit: "" },
+      { label: "Weight", value: "2.8", unit: "kg" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Land Cruiser", yearFrom: 1998, yearTo: 2007 },
+      { make: "Nissan", model: "Patrol", yearFrom: 2000, yearTo: 2010 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["water-pump", "diesel", "cast-iron", "cooling"],
+    featured: false,
+    viewCount: 2134,
+  },
+  {
+    name: "Thermostat – High Flow",
+    partNumber: "TST-HF-82C",
+    oemNumbers: ["90916-03110", "90916-03120"],
+    brand: "Aisin",
+    category: "cooling",
+    subcategory: "Thermostats",
+    shortDescription: "82°C high-flow thermostat with jiggle pin. Wax-element, direct fit.",
+    description: "High-flow wax-element thermostat rated at 82°C opening temperature.\n\n- Opening temperature: 82°C\n- Fully open at 95°C\n- Jiggle pin for air bleed\n- Direct fit in OE housing\n- High-flow design for heavy-duty cooling",
+    specifications: [
+      { label: "Type", value: "Wax-element", unit: "" },
+      { label: "Opening Temp", value: "82", unit: "°C" },
+      { label: "Fully Open Temp", value: "95", unit: "°C" },
+      { label: "Flange Diameter", value: "56", unit: "mm" },
+      { label: "Height", value: "42", unit: "mm" },
+      { label: "Bleed Feature", value: "Jiggle pin", unit: "" },
+      { label: "Temperature Tolerance", value: "±2", unit: "°C" },
+    ],
+    compatibility: [
+      { make: "Toyota", model: "Hilux", yearFrom: 2005, yearTo: 2015 },
+      { make: "Nissan", model: "Navara", yearFrom: 2006, yearTo: 2016 },
+      { make: "Mitsubishi", model: "Triton", yearFrom: 2006, yearTo: 2015 },
+    ],
+    stockStatus: "in_stock",
+    stockNote: "",
+    tags: ["thermostat", "high-flow", "cooling", "82c"],
+    featured: false,
+    viewCount: 1567,
+  },
+];
+
+function slugify(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim() || "untitled"
+  );
+}
+
+export async function seed() {
+  await migrate();
+
+  const db = getDb();
+  const result = await db.query("SELECT COUNT(*)::int as c FROM parts");
+  if (result.rows[0].c > 0) {
+    console.log(`Database already has ${result.rows[0].c} parts — skipping seed.`);
+    return;
+  }
+
+  const now = new Date();
+
+  for (const p of parts) {
+    const index = parts.indexOf(p);
+    const date = new Date(now);
+    date.setDate(date.getDate() - index);
+    const iso = date.toISOString();
+
+    await db.query(
+      `INSERT INTO parts (id, slug, name, "partNumber", "oemNumbers", brand, category, subcategory,
+        description, "shortDescription", images, specifications, compatibility,
+        "stockStatus", "stockNote", tags, "viewCount", featured, "createdAt", "updatedAt")
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+      [
+        uuid(), slugify(p.name), p.name, p.partNumber,
+        JSON.stringify(p.oemNumbers), p.brand, p.category, p.subcategory,
+        p.description, p.shortDescription, JSON.stringify([]),
+        JSON.stringify(p.specifications), JSON.stringify(p.compatibility),
+        p.stockStatus, p.stockNote || null,
+        JSON.stringify(p.tags), p.viewCount, p.featured ? 1 : 0,
+        iso, iso,
+      ]
+    );
+  }
+
+  console.log(`Seeded ${parts.length} parts into the database.`);
+
+  await seedVehicles();
+}
+
+async function seedVehicles() {
+  const db = getDb();
+  const vResult = await db.query("SELECT COUNT(*)::int as c FROM vehicles");
+  if (vResult.rows[0].c > 0) {
+    console.log("Vehicles already seeded — skipping.");
+    return;
+  }
+
+  const compResult = await db.query("SELECT id, compatibility FROM parts");
+  const seen = new Set<string>();
+  const vehicleRows: { id: string; slug: string; name: string; make: string; model: string; iso: string }[] = [];
+
+  for (const row of compResult.rows) {
+    const comps = JSON.parse(row.compatibility || "[]") as { make: string; model: string }[];
+    for (const c of comps) {
+      const key = `${c.make}|${c.model}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const now = new Date().toISOString();
+      vehicleRows.push({
+        id: uuid(),
+        slug: slugify(`${c.make} ${c.model}`),
+        name: `${c.make} ${c.model}`,
+        make: c.make,
+        model: c.model,
+        iso: now,
+      });
+    }
+  }
+
+  for (const v of vehicleRows) {
+    await db.query(
+      `INSERT INTO vehicles (id, slug, name, make, model, "createdAt", "updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [v.id, v.slug, v.name, v.make, v.model, v.iso, v.iso]
+    );
+  }
+  console.log(`Seeded ${vehicleRows.length} vehicles from part compatibility data.`);
+
+  const allParts = await db.query("SELECT id, compatibility FROM parts");
+  let linkCount = 0;
+  for (const row of allParts.rows) {
+    const comps = JSON.parse(row.compatibility || "[]") as { make: string; model: string }[];
+    for (const c of comps) {
+      const vSlug = slugify(`${c.make} ${c.model}`);
+      const v = await db.query("SELECT id FROM vehicles WHERE slug = $1", [vSlug]);
+      if (v.rows.length > 0) {
+        await db.query(
+          "INSERT INTO vehicle_parts (vehicle_id, part_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+          [v.rows[0].id, row.id]
+        );
+        linkCount++;
+      }
+    }
+  }
+  console.log(`Linked ${linkCount} part-vehicle relationships.`);
+}

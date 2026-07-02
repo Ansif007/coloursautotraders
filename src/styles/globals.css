@@ -3,26 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #0F172A;
-  --bg-surface: #1E293B;
-  --bg-elevated: #334155;
-  --border-subtle: #334155;
-  --border-glow: #475569;
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --accent-amber: #3B82F6;
-  --accent-amber-glow: rgba(59,130,246,0.15);
-  --accent-blue: #60A5FA;
-  --accent-blue-glow: rgba(96,165,250,0.1);
-  --status-green: #22C55E;
-  --status-red: #EF4444;
-  --status-yellow: #EAB308;
-  --glass-bg: rgba(15,23,42,0.8);
-  --glass-border: rgba(255,255,255,0.08);
-  --shadow-card: 0 1px 6px rgba(0,0,0,0.3);
-  --shadow-glow-amber: 0 0 20px rgba(59,130,246,0.2);
-  --shadow-glow-blue: 0 0 24px rgba(96,165,250,0.15);
+  --bg-base: #FFFFFF;
+  --bg-surface: #F8FAFC;
+  --bg-elevated: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-glow: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --accent-amber: #2563EB;
+  --accent-amber-glow: rgba(37,99,235,0.12);
+  --accent-blue: #3B82F6;
+  --accent-blue-glow: rgba(59,130,246,0.08);
+  --status-green: #16A34A;
+  --status-red: #DC2626;
+  --status-yellow: #CA8A04;
+  --glass-bg: rgba(255,255,255,0.8);
+  --glass-border: rgba(0,0,0,0.08);
+  --shadow-card: 0 1px 6px rgba(0,0,0,0.08);
+  --shadow-glow-amber: 0 0 20px rgba(37,99,235,0.15);
+  --shadow-glow-blue: 0 0 24px rgba(59,130,246,0.1);
 
   --duration-fast: 150ms;
   --duration-base: 250ms;

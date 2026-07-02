@@ -1,5 +1,5 @@
-import app from "../server/src/app";
-import { seed } from "../server/src/seed";
+import app from "./app";
+import { seed } from "./seed";
 
 let seeded = false;
 
