@@ -1,66 +1,60 @@
-import { DatabaseSync } from "node:sqlite";
-import path from "path";
-import fs from "fs";
+import pg from "pg";
 
-const DB_PATH = process.env.DB_PATH || path.join(import.meta.dirname, "..", "data", "colours-auto-traders.db");
+const { Pool } = pg;
 
-let db: DatabaseSync;
+let pool: pg.Pool;
 
-export function getDb(): DatabaseSync {
-  if (!db) {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    db = new DatabaseSync(DB_PATH);
-    db.exec("PRAGMA journal_mode = WAL");
-    db.exec("PRAGMA foreign_keys = ON");
-    migrate(db);
+export function getDb(): pg.Pool {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.POSTGRES_URL,
+      max: 5,
+    });
   }
-  return db;
+  return pool;
 }
 
-function migrate(db: DatabaseSync) {
-  db.exec(`
+export async function migrate() {
+  const db = getDb();
+  await db.query(`
     CREATE TABLE IF NOT EXISTS parts (
       id TEXT PRIMARY KEY,
       slug TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
-      partNumber TEXT NOT NULL,
-      oemNumbers TEXT NOT NULL DEFAULT '[]',
+      "partNumber" TEXT NOT NULL,
+      "oemNumbers" TEXT NOT NULL DEFAULT '[]',
       brand TEXT NOT NULL DEFAULT '',
       category TEXT NOT NULL,
       subcategory TEXT NOT NULL DEFAULT '',
       description TEXT NOT NULL DEFAULT '',
-      shortDescription TEXT NOT NULL DEFAULT '',
+      "shortDescription" TEXT NOT NULL DEFAULT '',
       images TEXT NOT NULL DEFAULT '[]',
       specifications TEXT NOT NULL DEFAULT '[]',
       compatibility TEXT NOT NULL DEFAULT '[]',
-      stockStatus TEXT NOT NULL DEFAULT 'in_stock',
-      stockNote TEXT,
+      "stockStatus" TEXT NOT NULL DEFAULT 'in_stock',
+      "stockNote" TEXT,
       tags TEXT NOT NULL DEFAULT '[]',
-      viewCount INTEGER NOT NULL DEFAULT 0,
+      "viewCount" INTEGER NOT NULL DEFAULT 0,
       featured INTEGER NOT NULL DEFAULT 0,
-      createdAt TEXT NOT NULL,
-      updatedAt TEXT NOT NULL
-    );
-
+      "createdAt" TEXT NOT NULL,
+      "updatedAt" TEXT NOT NULL
+    )
+  `);
+  await db.query(`
     CREATE TABLE IF NOT EXISTS inquiries (
       id TEXT PRIMARY KEY,
-      contactName TEXT NOT NULL,
+      "contactName" TEXT NOT NULL,
       phone TEXT NOT NULL,
       email TEXT,
-      companyName TEXT,
+      "companyName" TEXT,
       notes TEXT,
-      preferredContact TEXT NOT NULL DEFAULT 'whatsapp',
-      itemsJson TEXT NOT NULL,
-      createdAt TEXT NOT NULL
-    );
+      "preferredContact" TEXT NOT NULL DEFAULT 'whatsapp',
+      "itemsJson" TEXT NOT NULL,
+      "createdAt" TEXT NOT NULL
+    )
   `);
-
-  // Create indexes if they don't exist (using try-skip approach)
-  try { db.exec("CREATE INDEX IF NOT EXISTS idx_parts_slug ON parts(slug)"); } catch {}
-  try { db.exec("CREATE INDEX IF NOT EXISTS idx_parts_category ON parts(category)"); } catch {}
-  try { db.exec("CREATE INDEX IF NOT EXISTS idx_parts_brand ON parts(brand)"); } catch {}
-  try { db.exec("CREATE INDEX IF NOT EXISTS idx_parts_featured ON parts(featured)"); } catch {}
+  await db.query("CREATE INDEX IF NOT EXISTS idx_parts_slug ON parts(slug)").catch(() => {});
+  await db.query("CREATE INDEX IF NOT EXISTS idx_parts_category ON parts(category)").catch(() => {});
+  await db.query("CREATE INDEX IF NOT EXISTS idx_parts_brand ON parts(brand)").catch(() => {});
+  await db.query("CREATE INDEX IF NOT EXISTS idx_parts_featured ON parts(featured)").catch(() => {});
 }

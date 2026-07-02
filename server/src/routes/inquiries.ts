@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 
 const router = Router();
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const body = req.body;
 
   if (
@@ -29,30 +29,29 @@ router.post("/", (req, res) => {
   const id = uuid();
   const now = new Date().toISOString();
 
-  db.prepare(
-    `
-    INSERT INTO inquiries (id, contactName, phone, email, companyName, notes, preferredContact, itemsJson, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `
-  ).run(
-    id,
-    body.contactName.trim(),
-    body.phone.trim(),
-    body.email?.trim() || null,
-    body.companyName?.trim() || null,
-    body.notes?.trim() || null,
-    body.preferredContact || "whatsapp",
-    JSON.stringify(body.items),
-    now
+  await db.query(
+    `INSERT INTO inquiries (id, "contactName", phone, email, "companyName", notes, "preferredContact", "itemsJson", "createdAt")
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    [
+      id,
+      body.contactName.trim(),
+      body.phone.trim(),
+      body.email?.trim() || null,
+      body.companyName?.trim() || null,
+      body.notes?.trim() || null,
+      body.preferredContact || "whatsapp",
+      JSON.stringify(body.items),
+      now,
+    ]
   );
 
   res.status(201).json({ ok: true, id });
 });
 
-router.get("/", authMiddleware, (_req, res) => {
+router.get("/", authMiddleware, async (_req, res) => {
   const db = getDb();
-  const rows = db.prepare("SELECT * FROM inquiries ORDER BY createdAt DESC").all();
-  res.json(rows);
+  const result = await db.query("SELECT * FROM inquiries ORDER BY \"createdAt\" DESC");
+  res.json(result.rows);
 });
 
 export default router;

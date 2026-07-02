@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import { getDb, migrate } from "./db";
 import { v4 as uuid } from "uuid";
 
 interface SeedPart {
@@ -644,21 +644,15 @@ function slugify(text: string): string {
   );
 }
 
-export function seed() {
-  const db = getDb();
+export async function seed() {
+  await migrate();
 
-  const row = db.prepare("SELECT COUNT(*) as c FROM parts").get() as { c: number };
-  if (row.c > 0) {
-    console.log(`Database already has ${row.c} parts — skipping seed.`);
+  const db = getDb();
+  const result = await db.query("SELECT COUNT(*)::int as c FROM parts");
+  if (result.rows[0].c > 0) {
+    console.log(`Database already has ${result.rows[0].c} parts — skipping seed.`);
     return;
   }
-
-  const stmt = db.prepare(`
-    INSERT INTO parts (id, slug, name, partNumber, oemNumbers, brand, category, subcategory,
-      description, shortDescription, images, specifications, compatibility,
-      stockStatus, stockNote, tags, viewCount, featured, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
 
   const now = new Date();
 
@@ -668,27 +662,20 @@ export function seed() {
     date.setDate(date.getDate() - index);
     const iso = date.toISOString();
 
-    stmt.run(
-      uuid(),
-      slugify(p.name),
-      p.name,
-      p.partNumber,
-      JSON.stringify(p.oemNumbers),
-      p.brand,
-      p.category,
-      p.subcategory,
-      p.description,
-      p.shortDescription,
-      JSON.stringify([]),
-      JSON.stringify(p.specifications),
-      JSON.stringify(p.compatibility),
-      p.stockStatus,
-      p.stockNote || null,
-      JSON.stringify(p.tags),
-      p.viewCount,
-      p.featured ? 1 : 0,
-      iso,
-      iso
+    await db.query(
+      `INSERT INTO parts (id, slug, name, "partNumber", "oemNumbers", brand, category, subcategory,
+        description, "shortDescription", images, specifications, compatibility,
+        "stockStatus", "stockNote", tags, "viewCount", featured, "createdAt", "updatedAt")
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+      [
+        uuid(), slugify(p.name), p.name, p.partNumber,
+        JSON.stringify(p.oemNumbers), p.brand, p.category, p.subcategory,
+        p.description, p.shortDescription, JSON.stringify([]),
+        JSON.stringify(p.specifications), JSON.stringify(p.compatibility),
+        p.stockStatus, p.stockNote || null,
+        JSON.stringify(p.tags), p.viewCount, p.featured ? 1 : 0,
+        iso, iso,
+      ]
     );
   }
 

@@ -41,116 +41,95 @@ function slugify(text: string): string {
   );
 }
 
-router.get("/", (_req, res) => {
+router.get("/", async (_req, res) => {
   const db = getDb();
-  const rows = db.prepare("SELECT * FROM parts ORDER BY updatedAt DESC").all();
-  res.json(rows.map(rowToPart));
+  const result = await db.query("SELECT * FROM parts ORDER BY \"updatedAt\" DESC");
+  res.json(result.rows.map(rowToPart));
 });
 
-router.get("/:slug", (req, res) => {
+router.get("/:slug", async (req, res) => {
   const db = getDb();
-  const row = db.prepare("SELECT * FROM parts WHERE slug = ?").get(req.params.slug);
-  if (!row) {
+  const result = await db.query("SELECT * FROM parts WHERE slug = $1", [req.params.slug]);
+  if (result.rows.length === 0) {
     res.status(404).json({ error: "Part not found" });
     return;
   }
-  db.prepare("UPDATE parts SET viewCount = viewCount + 1 WHERE id = ?").run(
-    (row as any).id
-  );
-  (row as any).viewCount += 1;
+  const row = result.rows[0];
+  await db.query("UPDATE parts SET \"viewCount\" = \"viewCount\" + 1 WHERE id = $1", [row.id]);
+  row.viewCount += 1;
   res.json(rowToPart(row));
 });
 
-router.post("/", authMiddleware, (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   const db = getDb();
   const body = req.body;
   const id = body.id || uuid();
   const slug = body.slug || slugify(body.name || "");
   const now = new Date().toISOString();
 
-  db.prepare(
-    `
-    INSERT INTO parts (id, slug, name, partNumber, oemNumbers, brand, category, subcategory,
-      description, shortDescription, images, specifications, compatibility,
-      stockStatus, stockNote, tags, viewCount, featured, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `
-  ).run(
-    id,
-    slug,
-    body.name,
-    body.partNumber,
-    JSON.stringify(body.oemNumbers || []),
-    body.brand || "",
-    body.category,
-    body.subcategory || "",
-    body.description || "",
-    body.shortDescription || "",
-    JSON.stringify(body.images || []),
-    JSON.stringify(body.specifications || []),
-    JSON.stringify(body.compatibility || []),
-    body.stockStatus || "in_stock",
-    body.stockNote || null,
-    JSON.stringify(body.tags || []),
-    body.viewCount || 0,
-    body.featured ? 1 : 0,
-    body.createdAt || now,
-    now
+  await db.query(
+    `INSERT INTO parts (id, slug, name, "partNumber", "oemNumbers", brand, category, subcategory,
+      description, "shortDescription", images, specifications, compatibility,
+      "stockStatus", "stockNote", tags, "viewCount", featured, "createdAt", "updatedAt")
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+    [
+      id, slug, body.name, body.partNumber,
+      JSON.stringify(body.oemNumbers || []),
+      body.brand || "", body.category, body.subcategory || "",
+      body.description || "", body.shortDescription || "",
+      JSON.stringify(body.images || []),
+      JSON.stringify(body.specifications || []),
+      JSON.stringify(body.compatibility || []),
+      body.stockStatus || "in_stock", body.stockNote || null,
+      JSON.stringify(body.tags || []),
+      body.viewCount || 0, body.featured ? 1 : 0,
+      body.createdAt || now, now,
+    ]
   );
 
-  const row = db.prepare("SELECT * FROM parts WHERE id = ?").get(id);
-  res.status(201).json(rowToPart(row));
+  const result = await db.query("SELECT * FROM parts WHERE id = $1", [id]);
+  res.status(201).json(rowToPart(result.rows[0]));
 });
 
-router.put("/:id", authMiddleware, (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   const db = getDb();
   const body = req.body;
   const now = new Date().toISOString();
 
-  const existing = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
-  if (!existing) {
+  const existing = await db.query("SELECT * FROM parts WHERE id = $1", [req.params.id]);
+  if (existing.rows.length === 0) {
     res.status(404).json({ error: "Part not found" });
     return;
   }
 
-  db.prepare(
-    `
-    UPDATE parts SET
-      name = ?, slug = ?, partNumber = ?, oemNumbers = ?, brand = ?, category = ?,
-      subcategory = ?, description = ?, shortDescription = ?, images = ?,
-      specifications = ?, compatibility = ?, stockStatus = ?, stockNote = ?,
-      tags = ?, featured = ?, updatedAt = ?
-    WHERE id = ?
-  `
-  ).run(
-    body.name,
-    body.slug || slugify(body.name),
-    body.partNumber,
-    JSON.stringify(body.oemNumbers || []),
-    body.brand || "",
-    body.category,
-    body.subcategory || "",
-    body.description || "",
-    body.shortDescription || "",
-    JSON.stringify(body.images || []),
-    JSON.stringify(body.specifications || []),
-    JSON.stringify(body.compatibility || []),
-    body.stockStatus || "in_stock",
-    body.stockNote || null,
-    JSON.stringify(body.tags || []),
-    body.featured ? 1 : 0,
-    now,
-    req.params.id
+  await db.query(
+    `UPDATE parts SET
+      name = $1, slug = $2, "partNumber" = $3, "oemNumbers" = $4, brand = $5, category = $6,
+      subcategory = $7, description = $8, "shortDescription" = $9, images = $10,
+      specifications = $11, compatibility = $12, "stockStatus" = $13, "stockNote" = $14,
+      tags = $15, featured = $16, "updatedAt" = $17
+     WHERE id = $18`,
+    [
+      body.name, body.slug || slugify(body.name), body.partNumber,
+      JSON.stringify(body.oemNumbers || []), body.brand || "", body.category,
+      body.subcategory || "", body.description || "", body.shortDescription || "",
+      JSON.stringify(body.images || []),
+      JSON.stringify(body.specifications || []),
+      JSON.stringify(body.compatibility || []),
+      body.stockStatus || "in_stock", body.stockNote || null,
+      JSON.stringify(body.tags || []), body.featured ? 1 : 0, now,
+      req.params.id,
+    ]
   );
 
-  const row = db.prepare("SELECT * FROM parts WHERE id = ?").get(req.params.id);
-  res.json(rowToPart(row));
+  const result = await db.query("SELECT * FROM parts WHERE id = $1", [req.params.id]);
+  res.json(rowToPart(result.rows[0]));
 });
 
-router.delete("/:id", authMiddleware, (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   const db = getDb();
-  const result = db.prepare("DELETE FROM parts WHERE id = ?").run(req.params.id);
-  if (result.changes === 0) {
+  const result = await db.query("DELETE FROM parts WHERE id = $1", [req.params.id]);
+  if (result.rowCount === 0) {
     res.status(404).json({ error: "Part not found" });
     return;
   }
