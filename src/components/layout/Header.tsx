@@ -42,7 +42,7 @@ export function Header({ onInquiryToggle }: HeaderProps) {
           {/* Logo */}
           <Link to="/" className="shrink-0">
             <span className="text-xs font-heading font-bold text-text-primary uppercase tracking-[0.15em]">
-              Colours Auto Traders
+              Colors Auto Traders
             </span>
           </Link>
 

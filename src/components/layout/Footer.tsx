@@ -26,7 +26,7 @@ export function Footer() {
         </div>
         <div className="border-t border-border-subtle pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <p className="text-[10px] font-body font-semibold text-text-muted uppercase tracking-[0.1em]">
-            &copy; {year} Colours Auto Traders
+            &copy; {year} Colors Auto Traders
           </p>
           <p className="text-[10px] font-body text-text-muted">
             B2B Spare Parts Inquiry Platform

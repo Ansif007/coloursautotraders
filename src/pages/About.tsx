@@ -37,7 +37,7 @@ export function AboutPage() {
             Precision Spare Parts, Delivered Fast
           </h1>
           <p className="text-sm font-body text-text-secondary leading-relaxed max-w-2xl mx-auto">
-            Colours Auto Traders is a B2B automotive spare parts supplier based
+            Colors Auto Traders is a B2B automotive spare parts supplier based
             in Perumbaikad, Kottayam. We source, verify, and deliver quality
             components for workshops, service centres, and dealerships across
             Kerala.

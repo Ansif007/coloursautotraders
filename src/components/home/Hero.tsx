@@ -33,7 +33,7 @@ export function Hero() {
         <div className="max-w-3xl">
           {/* Eyebrow */}
           <p className="text-[10px] font-body font-semibold text-accent-amber uppercase tracking-[0.15em] mb-3">
-            Colours Auto Traders — Precision Parts. Trusted Source.
+            Colors Auto Traders — Precision Parts. Trusted Source.
           </p>
 
           {/* Headline */}

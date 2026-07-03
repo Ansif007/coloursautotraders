@@ -117,7 +117,7 @@ export function ContactPage() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Colours Auto Traders location"
+              title="Colors Auto Traders location"
               className="grayscale hover:grayscale-0 transition-all duration-700"
             />
           </div>

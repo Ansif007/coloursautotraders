@@ -7,7 +7,7 @@ function buildWhatsAppMessage(
   form: InquiryForm
 ): string {
   const lines: string[] = [];
-  lines.push("*Colours Auto Traders Inquiry*");
+  lines.push("*Colors Auto Traders Inquiry*");
   lines.push("");
   lines.push(`👤 *Contact:* ${form.contactName}`);
   lines.push(`🏢 *Company:* ${form.companyName || "N/A"}`);
@@ -30,7 +30,7 @@ function buildWhatsAppMessage(
   lines.push("📝 *General Notes:*");
   lines.push(form.notes || "None");
   lines.push("");
-  lines.push("Sent via Colours Auto Traders");
+  lines.push("Sent via Colors Auto Traders");
 
   return lines.join("\n");
 }
@@ -47,7 +47,7 @@ export function getEmailUrl(
   items: InquiryItem[],
   form: InquiryForm
 ): string {
-  const subject = "Parts Inquiry — Colours Auto Traders";
+  const subject = "Parts Inquiry — Colors Auto Traders";
   const body = buildWhatsAppMessage(items, form);
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
